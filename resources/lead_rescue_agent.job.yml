@@ -1,0 +1,32 @@
+resources:
+  jobs:
+    lead_rescue_agent:
+      name: lead_rescue_agent
+      tasks:
+        - task_key: run_agent
+          environment_key: agent
+          spark_python_task:
+            python_file: ../src/agent/run_agent.py
+            parameters: ["--src_dir", "${workspace.file_path}/src",
+                         "--catalog", "${var.catalog}", "--schema", "${var.schema}",
+                         "--llm_endpoint", "${var.llm_endpoint}"]
+        - task_key: measure
+          depends_on:
+            - task_key: run_agent
+          environment_key: agent
+          spark_python_task:
+            python_file: ../src/measure.py
+            parameters: ["--src_dir", "${workspace.file_path}/src",
+                         "--catalog", "${var.catalog}", "--schema", "${var.schema}"]
+      environments:
+        - environment_key: agent
+          spec:
+            environment_version: "2"
+            dependencies:
+              - mlflow>=2.21
+              - openai>=1.40
+              - databricks-sdk[openai]>=0.40
+              - httpx
+              - scikit-learn
+              - numpy
+              - pandas
