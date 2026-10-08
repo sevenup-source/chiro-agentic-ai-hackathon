@@ -1,0 +1,25 @@
+bundle:
+  name: chiro-lead-agent
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog for all tables
+    default: workspace
+  schema:
+    description: Schema for all tables
+    default: chiro_hackathon
+  llm_endpoint:
+    description: Foundation Model serving endpoint used by the agent (see `databricks serving-endpoints list`)
+    default: databricks-meta-llama-3-3-70b-instruct
+
+targets:
+  dev:
+    mode: development
+    default: true
+  prod:
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

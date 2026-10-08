@@ -1,0 +1,25 @@
+resources:
+  jobs:
+    setup_data:
+      name: setup_data
+      tasks:
+        - task_key: generate_synthetic_data
+          notebook_task:
+            notebook_path: ../sample_data/generate_synthetic_data.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+        - task_key: inject_signal
+          depends_on:
+            - task_key: generate_synthetic_data
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/inject_signal.py
+            parameters: ["--catalog", "${var.catalog}", "--schema", "${var.schema}",
+                         "--src_dir", "${workspace.file_path}/src"]
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "2"
+            dependencies:
+              - numpy
